@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código Morse - Tabela Completa</title>
+<style>
+    :root {
+        /* Definição de Variáveis de Cores */
+    --bg-page: #187cc0;                /* Azul bem clarinho (Céu) */
+        --text-color: #fff;    
+        --text-color2: #2c3e50;            /* Azul escuro suave para leitura */
+        --column-bg: #ffffff;              /* Branco puro para os cards */
+        --column-border: #bee3f8;          /* Bordas azul pastel */
+        --column-title-bg-color: #4299e1;  /* Azul vivo para os títulos */
+        --txt-column-title-color: #ffffff; /* Texto branco no título */
+        --item-border-color: #ebf8ff;      /* Divisórias internas sutis */
+        --morse-symbol-color: #ed8936;     /* Laranja amigável para os sinais */
+        
+        /* Dica extra: Adicionei um tom de destaque para os números */
+        --accent-color: #48bb78;           /* Verde para variar se desejar */
+    }
+
+    body { 
+        font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; 
+        background-color: var(--bg-page); 
+        margin: 0; 
+        padding: 10px; 
+        color: var(--text-color); 
+    }
+
+    h1 { 
+        text-align: center; 
+        font-size: 1.3rem; 
+        margin: 15px 0; 
+    }
+
+    .container { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 12px; 
+        color: var(--text-color2); 
+    }
+
+    .column { 
+        background-color: var(--column-bg); 
+        border: 1px solid var(--column-border); 
+        border-radius: 8px; 
+        padding: 10px; 
+    }
+
+    .column-title { 
+        background-color: var(--column-title-bg-color); 
+        color: var(--txt-column-title-color); 
+        text-align: center; 
+        padding: 6px; 
+        border-radius: 4px; 
+        margin-bottom: 10px; 
+        font-weight: bold; 
+        font-size: 0.85rem; 
+        text-transform: uppercase;
+    }
+
+    .grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); 
+        gap: 6px; 
+    }
+
+    .item { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        border: 1px solid var(--item-border-color); 
+        padding: 8px 2px; 
+        border-radius: 6px; 
+    }
+
+    .letter { 
+        font-size: 1.1rem; 
+        font-weight: bold; 
+        margin-bottom: 6px; 
+    }
+
+    .morse-row { 
+        display: flex; 
+        gap: 3px; 
+        align-items: center; 
+        justify-content: center; 
+        height: 10px; 
+    }
+
+    /* Aplicação da variável de cor nos símbolos Morse */
+    svg { 
+        fill: var(--morse-symbol-color); 
+    }
+
+    /* Ajuste responsivo para telas maiores */
+    @media (min-width: 600px) { 
+        .container { 
+            flex-direction: row; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+        } 
+        .column { 
+            width: 220px; 
+        } 
+    }
+</style>
+
+</head>
+<body>
+
+<h1>Código Morse Internacional</h1>
+
+<div class="container">
+    <!-- 1 SINAL -->
+    <div class="column">
+        <div class="column-title">1 Sinal</div>
+        <div class="grid">
+            <div class="item"><span class="letter">E</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">T</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg></div></div>
+        </div>
+    </div>
+
+    <!-- 2 SINAIS -->
+    <div class="column">
+        <div class="column-title">2 Sinais</div>
+        <div class="grid">
+            <div class="item"><span class="letter">I</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">A</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg></div></div>
+            <div class="item"><span class="letter">M</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg></div></div>
+            <div class="item"><span class="letter">N</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+        </div>
+    </div>
+
+    <!-- 3 SINAIS -->
+    <div class="column">
+        <div class="column-title">3 Sinais</div>
+        <div class="grid">
+            <div class="item"><span class="letter">S</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">U</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg></div></div>
+            <div class="item"><span class="letter">R</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">W</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg></div></div>
+            <div class="item"><span class="letter">O</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg></div></div>
+            <div class="item"><span class="letter">D</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">K</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg></div></div>
+            <div class="item"><span class="letter">G</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="2"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+        </div>
+    </div>
+
+    <!-- 4 SINAIS -->
+    <div class="column">
+        <div class="column-title">4 Sinais</div>
+        <div class="grid">
+            <div class="item"><span class="letter">H</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">V</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg></div></div>
+            <div class="item"><span class="letter">F</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">L</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">P</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">J</span><div class="morse-row"><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg></div></div>
+        </div>
+
+            <div class="grid">
+
+            <div class="item"><span class="letter">B</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">C</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+            <div class="item"><span class="letter">Q</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg></div></div>
+            <div class="item"><span class="letter">X</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg></div></div>
+            <div class="item"><span class="letter">Y</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg></div></div>
+            <div class="item"><span class="letter">Z</span><div class="morse-row"><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="18" height="8"><rect width="18" height="8" rx="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg><svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg></div></div>
+        </div>
+    </div>
+
+
+    <!-- 5 SINAIS (NÚMEROS) -->
+    <div class="column">
+        <div class="column-title">5 Sinais</div>
+        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));">
+            <div class="item"><span class="letter">1</span><div class="morse-row"><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg></div></div>
+            <div class="item"><span class="letter">2</span><div class="morse-row"><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg></div></div>
+            <div class="item"><span class="letter">3</span><div class="morse-row"><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg></div></div>
+            <div class="item"><span class="letter">4</span><div class="morse-row"><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg></div></div>
+            <div class="item"><span class="letter">5</span><div class="morse-row"><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg></div></div>
+           
+           
+              </div>
+
+            <div class="grid">
+           
+           
+            <div class="item"><span class="letter">6</span><div class="morse-row"><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg></div></div>
+            <div class="item"><span class="letter">7</span><div class="morse-row"><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg></div></div>
+            <div class="item"><span class="letter">8</span><div class="morse-row"><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg></div></div>
+            <div class="item"><span class="letter">9</span><div class="morse-row"><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg></div></div>
+            <div class="item"><span class="letter">0</span><div class="morse-row"><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg></div></div>
+        </div>
+    </div>
+
+    <!-- 6 SINAIS (PONTUAÇÃO) -->
+    <div class="column">
+        <div class="column-title">6 Sinais</div>
+        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));">
+            <div class="item"><span class="letter">ponto</span><div class="morse-row"><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg></div></div>
+            <div class="item"><span class="letter">vírgula</span><div class="morse-row"><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg></div></div>
+            <div class="item"><span class="letter">?</span><div class="morse-row"><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="14" height="6"><rect width="14" height="6" rx="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg><svg width="6" height="6"><circle cx="3" cy="3" r="3"/></svg></div></div>
+        </div>
+    </div>
+
+    <br> <br> <br> <br> 
+
+</body>
+</html>
