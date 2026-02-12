@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Pro - Letras e Números</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; margin: 0; }
+        .container { background: var(--card); padding: 1.5rem; border-radius: 16px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        textarea { width: 100%; height: 60px; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 8px; padding: 12px; box-sizing: border-box; font-size: 16px; margin: 10px 0; }
+        .output { background: #0f172a; padding: 12px; border-radius: 8px; min-height: 30px; font-family: monospace; color: #fbbf24; border-left: 4px solid var(--primary); margin-bottom: 15px; font-size: 1.1rem; }
+        
+        .keyboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 6px; margin-top: 15px; border-top: 1px solid #334155; padding-top: 15px; }
+        .key { background: #334155; border: 1px solid #475569; border-radius: 6px; color: white; padding: 12px 0; font-weight: bold; cursor: pointer; transition: 0.1s; -webkit-tap-highlight-color: transparent; font-size: 0.9rem; }
+        .key:active { background: #60a5fa; transform: scale(0.92); }
+        
+        input[type="range"] { width: 100%; accent-color: var(--primary); }
+        .main-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .main-btn:disabled { opacity: 0.5; }
+        label { font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 5px; }
+        .kb-label { text-align: center; font-weight: bold; color: #60a5fa; margin: 10px 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align:center; color:#60a5fa; margin-top:0;">Morse Pro 1000Hz</h2>
+    
+    <label>Entrada de Texto:</label>
+    <textarea id="input" placeholder="Digite para converter..."></textarea>
+    <div id="morseOutput" class="output"></div>
+
+    <div style="margin-bottom: 15px;">
+        <label>Velocidade: <span id="speedVal">0.10</span>s</label>
+        <input type="range" id="speedSlider" min="0.05" max="0.25" step="0.01" value="0.10">
+    </div>
+
+    <button id="playBtn" class="main-btn">REPRODUZIR FRASE</button>
+
+    <div class="kb-label">Teclado Sonoro (A-Z, 0-9)</div>
+    <div class="keyboard" id="keyboard"></div>
+</div>
+
+<script>
+    const morseAlphabet = {
+        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+        'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+        'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+        'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
+        '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----'
+    };
+
+    const input = document.getElementById('input');
+    const output = document.getElementById('morseOutput');
+    const playBtn = document.getElementById('playBtn');
+    const speedSlider = document.getElementById('speedSlider');
+    const keyboard = document.getElementById('keyboard');
+    let audioCtx = null;
+
+    // Criar teclado ordenado: Letras primeiro, depois Números
+    const sortedKeys = Object.keys(morseAlphabet).sort((a, b) => {
+        const isANum = !isNaN(a);
+        const isBNum = !isNaN(b);
+        if (isANum && !isBNum) return 1;  // Números vão para o fim
+        if (!isANum && isBNum) return -1; // Letras vão para o início
+        return a.localeCompare(b);        // Ordem alfabética/numérica normal
+    });
+
+    sortedKeys.forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'key';
+        btn.textContent = key;
+        btn.onclick = () => {
+            initAudio();
+            playMorseString(morseAlphabet[key]);
+        };
+        keyboard.appendChild(btn);
+    });
+
+    function updateMorseView() {
+        const text = input.value.toUpperCase();
+        output.textContent = text.split('').map(char => char === ' ' ? '/' : (morseAlphabet[char] || '')).join(' ');
+    }
+
+    input.addEventListener('input', updateMorseView);
+    speedSlider.addEventListener('input', () => document.getElementById('speedVal').textContent = speedSlider.value);
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playTone(duration) {
+        return new Promise(resolve => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.001);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime + duration - 0.001);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+            osc.onended = resolve;
+        });
+    }
+
+    async function playMorseString(code) {
+        const dotTime = parseFloat(speedSlider.value);
+        for (let char of code) {
+            if (char === '.') await playTone(dotTime);
+            else if (char === '-') await playTone(dotTime * 4);
+            await new Promise(r => setTimeout(r, dotTime * 1000));
+        }
+    }
+
+    async function playFullMessage() {
+        initAudio();
+        const code = output.textContent;
+        if (!code || playBtn.disabled) return;
+
+        playBtn.disabled = true;
+        const dotTime = parseFloat(speedSlider.value);
+
+        for (let char of code) {
+            if (char === '.') {
+                await playTone(dotTime);
+                await new Promise(r => setTimeout(r, dotTime * 1000));
+            } else if (char === '-') {
+                await playTone(dotTime * 5);
+                await new Promise(r => setTimeout(r, dotTime * 1000));
+            } else if (char === ' ') {
+                await new Promise(r => setTimeout(r, dotTime * 2000));
+            } else if (char === '/') {
+                await new Promise(r => setTimeout(r, dotTime * 6000));
+            }
+        }
+        playBtn.disabled = false;
+    }
+
+    playBtn.addEventListener('click', playFullMessage);
+</script>
+
+</body>
+</html>

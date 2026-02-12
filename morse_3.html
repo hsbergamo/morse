@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Morse Pocket Synth Pro</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
+        .container { background: var(--card); padding: 1.5rem; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        
+        .display { background: #0f172a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 2px solid #334155; min-height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .char-now { font-size: 2.5rem; font-weight: bold; color: #60a5fa; line-height: 1; }
+        .morse-now { font-size: 1.5rem; color: #fbbf24; font-family: monospace; margin-top: 5px; letter-spacing: 3px; }
+
+        .keyboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; margin-bottom: 20px; }
+        .key { background: #334155; border: 1px solid #475569; border-radius: 8px; color: white; padding: 15px 0; font-weight: bold; cursor: pointer; transition: 0.1s; -webkit-tap-highlight-color: transparent; }
+        .key:active { background: var(--primary); transform: scale(0.9); }
+
+        .controls { border-top: 1px solid #334155; padding-top: 20px; text-align: left; }
+        
+        /* Switch Style */
+        .switch-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-switch { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 34px; }
+        .slider-switch:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider-switch { background-color: var(--primary); }
+        input:checked + .slider-switch:before { transform: translateX(24px); }
+
+        label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        input[type="range"] { width: 100%; accent-color: var(--primary); margin-top: 10px; }
+        .control-label { font-weight: bold; color: #f1f5f9; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="display">
+        <div id="charDisp" class="char-now">-</div>
+        <div id="morseDisp" class="morse-now">...</div>
+    </div>
+
+    <div class="keyboard" id="keyboard"></div>
+
+    <div class="controls">
+        <div class="switch-group">
+            <span class="control-label">Tom Dual</span>
+            <label class="switch">
+                <input type="checkbox" id="dualToneToggle">
+                <span class="slider-switch"></span>
+            </label>
+        </div>
+
+        <div style="display: flex; justify-content: space-between;">
+            <label>Velocidade</label>
+            <span id="speedVal" style="color:#60a5fa; font-weight:bold; font-size:0.8rem;">0.10s</span>
+        </div>
+        <input type="range" id="speedSlider" min="0.05" max="0.25" step="0.01" value="0.10">
+    </div>
+</div>
+
+<script>
+    const morseAlphabet = {
+        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+        'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+        'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+        'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
+        '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----'
+    };
+
+    const charDisp = document.getElementById('charDisp');
+    const morseDisp = document.getElementById('morseDisp');
+    const keyboard = document.getElementById('keyboard');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    const dualToneToggle = document.getElementById('dualToneToggle');
+    let audioCtx = null;
+
+    const sortedKeys = Object.keys(morseAlphabet).sort((a, b) => {
+        const isANum = !isNaN(a);
+        const isBNum = !isNaN(b);
+        if (isANum && !isBNum) return 1;
+        if (!isANum && isBNum) return -1;
+        return a.localeCompare(b);
+    });
+
+    sortedKeys.forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'key';
+        btn.textContent = key;
+        btn.onclick = () => playSingle(key);
+        keyboard.appendChild(btn);
+    });
+
+    speedSlider.oninput = () => speedVal.textContent = speedSlider.value + 's';
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    async function playSingle(key) {
+        initAudio();
+        const code = morseAlphabet[key];
+        charDisp.textContent = key;
+        morseDisp.textContent = code;
+        
+        const dotTime = parseFloat(speedSlider.value);
+        for (let char of code) {
+            // Se o switch estiver ligado e for um ponto (.), usa 2000Hz. Senão, 1000Hz.
+            const freq = (dualToneToggle.checked && char === '.') ? 1600 : 1000;
+            const duration = char === '.' ? dotTime : dotTime * 3;
+            
+            await playTone(duration, freq);
+            await new Promise(r => setTimeout(r, dotTime * 1000));
+        }
+    }
+
+    function playTone(duration, frequency) {
+        return new Promise(resolve => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.005);
+            gain.gain.setValueAtTime(0.12, audioCtx.currentTime + duration - 0.005);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+            osc.onended = resolve;
+        });
+    }
+</script>
+
+</body>
+</html>

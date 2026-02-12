@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Morse Synth - Smart Tap</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --accent: #60a5fa; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
+        .container { background: var(--card); padding: 1.5rem; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        
+        .display { background: #0f172a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 2px solid #334155; min-height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+        .char-now { font-size: 2.8rem; font-weight: bold; color: var(--accent); line-height: 1; }
+        .morse-now { font-size: 1.2rem; color: #fbbf24; font-family: monospace; margin-top: 8px; letter-spacing: 4px; min-height: 1.2em; }
+        .live-indicator { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; color: #ef4444; font-weight: bold; display: none; }
+
+        .keyboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 6px; margin-bottom: 15px; }
+        .key { background: #334155; border: 1px solid #475569; border-radius: 6px; color: white; padding: 10px 0; font-weight: bold; cursor: pointer; -webkit-tap-highlight-color: transparent; font-size: 0.8rem; }
+        .key:active { background: var(--primary); }
+
+        .tap-btn { 
+            width: 100%; padding: 25px; background: #0ea5e9; color: white; border: none; border-radius: 12px; 
+            font-size: 1.8rem; font-weight: bold; cursor: pointer; margin-bottom: 20px; 
+            box-shadow: 0 4px 0 #0369a1; transition: all 0.05s; user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+        .tap-btn:active { background: #38bdf8; transform: translateY(3px); box-shadow: 0 1px 0 #0369a1; }
+
+        .controls { border-top: 1px solid #334155; padding-top: 15px; text-align: left; }
+        .switch-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-switch { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 20px; }
+        .slider-switch:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider-switch { background-color: var(--primary); }
+        input:checked + .slider-switch:before { transform: translateX(20px); }
+
+        label { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        input[type="range"] { width: 100%; accent-color: var(--primary); margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="display">
+        <div id="liveInd" class="live-indicator">● REC</div>
+        <div id="charDisp" class="char-now">-</div>
+        <div id="morseDisp" class="morse-now">AGUARDANDO</div>
+    </div>
+
+    <div class="keyboard" id="keyboard"></div>
+
+    <button id="tapBtn" class="tap-btn">TAP MANUAL</button>
+
+    <div class="controls">
+        <div class="switch-group">
+            <span style="font-weight: bold; font-size: 0.75rem;">Modo Dual (Ponto 2kHz)</span>
+            <label class="switch"><input type="checkbox" id="dualToneToggle"><span class="slider-switch"></span></label>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <label>Sensibilidade (Speed)</label>
+            <span id="speedVal" style="color:var(--accent); font-weight:bold; font-size:0.75rem;">0.10s</span>
+        </div>
+        <input type="range" id="speedSlider" min="0.05" max="0.25" step="0.01" value="0.10">
+    </div>
+</div>
+
+<script>
+    const morseAlphabet = {
+        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+        'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+        'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+        'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
+        '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----'
+    };
+    // Mapa reverso para decodificação
+    const reverseMorse = Object.fromEntries(Object.entries(morseAlphabet).map(([k, v]) => [v, k]));
+
+    const charDisp = document.getElementById('charDisp');
+    const morseDisp = document.getElementById('morseDisp');
+    const keyboard = document.getElementById('keyboard');
+    const tapBtn = document.getElementById('tapBtn');
+    const speedSlider = document.getElementById('speedSlider');
+    const liveInd = document.getElementById('liveInd');
+    
+    let audioCtx, manualOsc, manualGain;
+    let downTime, upTime, currentSequence = "";
+    let decodeTimer = null;
+
+    // Gerar Teclado
+    Object.keys(morseAlphabet).sort((a,b) => !isNaN(a) - !isNaN(b) || a.localeCompare(b)).forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'key'; btn.textContent = key;
+        btn.onclick = () => playAuto(key);
+        keyboard.appendChild(btn);
+    });
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function startManualTone() {
+        initAudio();
+        if (manualOsc) stopManualTone();
+        
+        downTime = Date.now();
+        clearTimeout(decodeTimer);
+        liveInd.style.display = "block";
+
+        manualOsc = audioCtx.createOscillator();
+        manualGain = audioCtx.createGain();
+        manualOsc.type = 'square';
+        manualOsc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+        manualGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        manualGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.005);
+        
+        manualOsc.connect(manualGain);
+        manualGain.connect(audioCtx.destination);
+        manualOsc.start();
+    }
+
+    function stopManualTone() {
+        if (!manualOsc) return;
+        const duration = (Date.now() - downTime) / 1000;
+        const dotThreshold = parseFloat(speedSlider.value) * 2.5;
+
+        // Adiciona ponto ou traço baseado na duração do clique
+        currentSequence += (duration < dotThreshold) ? "." : "-";
+        morseDisp.textContent = currentSequence;
+        charDisp.textContent = "?";
+
+        manualGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.01);
+        manualOsc.stop(audioCtx.currentTime + 0.02);
+        manualOsc = null;
+
+        // Timer para finalizar a letra após silêncio
+        const waitTime = parseFloat(speedSlider.value) * 3000; 
+        decodeTimer = setTimeout(decodeMorse, waitTime);
+    }
+
+    function decodeMorse() {
+        const result = reverseMorse[currentSequence] || "X";
+        charDisp.textContent = result;
+        if (!reverseMorse[currentSequence]) morseDisp.textContent = "NÃO RECONHECIDO";
+        currentSequence = "";
+        liveInd.style.display = "none";
+    }
+
+    // Eventos
+    tapBtn.onmousedown = (e) => { e.preventDefault(); startManualTone(); };
+    window.onmouseup = stopManualTone;
+    tapBtn.ontouchstart = (e) => { e.preventDefault(); startManualTone(); };
+    tapBtn.ontouchend = (e) => { e.preventDefault(); stopManualTone(); };
+
+    async function playAuto(key) {
+        initAudio();
+        const code = morseAlphabet[key];
+        charDisp.textContent = key;
+        morseDisp.textContent = code;
+        currentSequence = "";
+        const dotTime = parseFloat(speedSlider.value);
+        for (let char of code) {
+            const freq = (document.getElementById('dualToneToggle').checked && char === '.') ? 2000 : 1000;
+            await playTone(char === '.' ? dotTime : dotTime * 3, freq);
+            await new Promise(r => setTimeout(r, dotTime * 1000));
+        }
+    }
+
+    function playTone(duration, frequency) {
+        return new Promise(resolve => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.005);
+            gain.gain.setValueAtTime(0.12, audioCtx.currentTime + duration - 0.005);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+            osc.onended = resolve;
+        });
+    }
+
+    speedSlider.oninput = () => document.getElementById('speedVal').textContent = speedSlider.value + 's';
+</script>
+</body>
+</html>
